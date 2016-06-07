@@ -128,8 +128,14 @@ def mutate_board(brd):
 
 def create_initial_generation(n):
     gen = []
-    for _ in range(n):
-        gen.append(generate_starting_board())
+    count = 0
+    while True:
+        board = generate_starting_board()
+        if verify_board(board):
+            gen.append(board)
+            count += 1
+            if count == n:
+                break
     return gen
 
 def sort_generation_by_fitness(gen):
