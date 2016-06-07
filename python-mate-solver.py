@@ -3,17 +3,17 @@ import random
 import itertools
 
 def verify_board(brd):
-  if len(brd.pieces(chess.KING, chess.BLACK)) != 1:
-      return False
-  if len(brd.pieces(chess.KING, chess.WHITE)) != 1:
-      return False
-  if brd.is_game_over():
-      return False
-  if brd.was_into_check():
-      return False
-  if brd.is_check():
-      return False
-  return True
+    if len(brd.pieces(chess.KING, chess.BLACK)) != 1:
+        return False
+    if len(brd.pieces(chess.KING, chess.WHITE)) != 1:
+        return False
+    if brd.is_game_over():
+        return False
+    if brd.was_into_check():
+        return False
+    if brd.is_check():
+        return False
+    return True
 
 def get_random_square():
    return chess.square(random.randint(0, 7), random.randint(1, 7))
@@ -53,10 +53,10 @@ def generate_starting_board():
 def count_mates_in_1(brd):
     count = 0
     for move in brd.legal_moves:
-        cpy = brd.copy()
-        cpy.push(move)
-        if cpy.is_checkmate():
+        brd.push(move)
+        if brd.is_checkmate():
             count += 1
+        brd.pop()
     return count
 
 def blend_boards(brd1, brd2):
