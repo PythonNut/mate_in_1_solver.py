@@ -134,12 +134,21 @@ def create_initial_generation(n):
         if verify_board(board):
             gen.append(board)
             count += 1
+            progress = str(count).rjust(9, " ")
+            print("{}/{} Creating generation".format(progress, n), end="\r")
             if count == n:
                 break
     return gen
 
 def sort_generation_by_fitness(gen):
-    return list(reversed(sorted(gen, key=count_mates_in_1)))
+    gen_scored = []
+    for board in gen:
+        gen_scored.append((board, count_mates_in_1(board)))
+        progress = str(len(gen_scored)).rjust(6, ' ')
+        print("{}/{} Scoring generation".format(progress, len(gen)),end="\r")
+    # gen_scored = [(board, count_mates_in_1(board)) for board in gen]
+    gen_sorted = reversed(sorted(gen_scored, key=lambda x:x[1]))
+    return [board for (board, score) in gen_sorted]
 
 def create_new_generation(gen_sorted, n):
     newgen = []
@@ -148,12 +157,16 @@ def create_new_generation(gen_sorted, n):
     while True:
         b1 = random.choice(top)
         b2 = random.choice(top)
-        newb = mutate_board(blend_boards(b1, b2))
+        newb = blend_boards(b1, b2)
+        for _ in range(round(random.expovariate(1))):
+            newb = mutate_board(newb)
         if verify_board(newb):
-          newgen.append(newb)
-          count += 1
-          if count == n:
-              break
+            newgen.append(newb)
+            count += 1
+            progress = str(count).rjust(6, " ")
+            print("{}/{} Creating generation".format(progress, n), end="\r")
+            if count == n:
+                break
     return newgen
 
 def main():
