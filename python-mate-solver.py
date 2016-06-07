@@ -102,9 +102,30 @@ def blend_boards(brd1, brd2):
 
     return res
 
+def mutate_board(brd):
+    res = brd.copy()
+    mutate_type = random.randint(1, 4)
+    print(mutate_type)
+    if mutate_type == 1:
+        return res
+    elif mutate_type == 2:
+        # Remove a piece
+        square = random.choice(list(get_occupied(brd)))
+        res.remove_piece_at(square)
+    elif mutate_type == 3:
+        # Add a piece
+        square = get_random_square()
+        piece = get_random_piece()
+        if not brd.piece_at(square):
+            res.set_piece_at(square, piece)
+    else:
+        fr = random.choice(list(get_occupied(brd, "kKPNBRQ")))
+        to = random.choice(list(~get_occupied(brd, "kKPNBRQ")))
+        piece = res.piece_at(fr)
+        res.remove_piece_at(fr)
+        res.set_piece_at(to, piece)
+    return res
+
 b1 = generate_starting_board()
-b2 = generate_starting_board()
 print(b1,"\n")
-print(b2,"\n")
-res = blend_boards(b1, b2)
-print(res, verify_board(res))
+print(mutate_board(b1))
