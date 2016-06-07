@@ -18,8 +18,22 @@ def verify_board(brd):
 def get_random_square():
    return chess.square(random.randint(0, 7), random.randint(1, 7))
 
-def get_random_piece(pieces):
+def get_random_piece(pieces = "PNBRQ"):
     return chess.Piece.from_symbol(random.choice(pieces))
+
+def get_occupied(brd, pieces = "PNBRQ"):
+    pieces_and_colors = []
+    for piece in pieces:
+        piece = chess.Piece.from_symbol(piece)
+        pieces_and_colors.append((piece.piece_type, piece.color))
+    res = chess.SquareSet()
+    for piece, color in pieces_and_colors:
+        try:
+            for square in brd.pieces(piece, color):
+                res.add(square)
+        except UnboundLocalError:
+            pass
+    return res
 
 def generate_starting_board():
     brd = chess.Board(None)
@@ -30,7 +44,7 @@ def generate_starting_board():
 
     for _ in range(random.randint(1, 10)):
         square = get_random_square()
-        piece = get_random_piece("PNBRQ")
+        piece = get_random_piece()
         if not brd.piece_at(square):
           brd.set_piece_at(square, piece)
 
