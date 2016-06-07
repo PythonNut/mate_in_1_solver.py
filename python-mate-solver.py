@@ -51,12 +51,10 @@ def generate_starting_board():
     return brd
 
 def count_mates_in_1(brd):
-    print(brd, "\n")
     count = 0
     for move in brd.legal_moves:
         cpy = brd.copy()
         cpy.push(move)
-        print(cpy, "\n")
         if cpy.is_checkmate():
             count += 1
     return count
@@ -105,12 +103,14 @@ def blend_boards(brd1, brd2):
 def mutate_board(brd):
     res = brd.copy()
     mutate_type = random.randint(1, 4)
-    print(mutate_type)
     if mutate_type == 1:
         return res
     elif mutate_type == 2:
         # Remove a piece
-        square = random.choice(list(get_occupied(brd)))
+        try:
+          square = random.choice(list(get_occupied(brd)))
+        except IndexError:
+            return res
         res.remove_piece_at(square)
     elif mutate_type == 3:
         # Add a piece
@@ -126,6 +126,39 @@ def mutate_board(brd):
         res.set_piece_at(to, piece)
     return res
 
-b1 = generate_starting_board()
-print(b1,"\n")
-print(mutate_board(b1))
+def create_initial_generation(n):
+    gen = []
+    for _ in range(n):
+        gen.append(generate_starting_board())
+    return gen
+
+def sort_generation_by_fitness(gen):
+    return list(reversed(sorted(gen, key=count_mates_in_1)))
+
+def create_new_generation(gen_sorted, n):
+    newgen = []
+    top = list(gen_sorted)[:n//10]
+    count = 0
+    while True:
+        b1 = random.choice(top)
+        b2 = random.choice(top)
+        newb = mutate_board(blend_boards(b1, b2))
+        if verify_board(newb):
+          newgen.append(newb)
+          count += 1
+          if count == n:
+              break
+    return newgen
+
+def main():
+    n = 1000
+    gen = create_initial_generation(n)
+    while True:
+        gen_sorted = sort_generation_by_fitness(gen)
+        best = gen_sorted[0]
+        print(best)
+        print(count_mates_in_1(best))
+        gen = create_new_generation(gen_sorted, n)
+
+if __name__ == "__main__":
+    main()
