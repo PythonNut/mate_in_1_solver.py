@@ -33,4 +33,15 @@ def generate_starting_board():
 
     return brd
 
-print(generate_starting_board())
+def count_mates_in_1(brd):
+    print(brd,"\n")
+    count = 0
+    for move in brd.legal_moves:
+        cpy = brd.copy()
+        cpy.push(move)
+        print(cpy,"\n")
+        if cpy.is_checkmate():
+            count += 1
+    return count
+
+print(count_mates_in_1(generate_starting_board()))
