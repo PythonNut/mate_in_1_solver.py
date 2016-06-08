@@ -171,6 +171,8 @@ def score_generation(gen):
 
 def create_new_generation(gen, gen_scores, n):
     tournament_size = 2
+    crossover_rate = 0.75
+    mutation_rate = 0.05
     velocity = 1
 
     newgen = []
@@ -179,13 +181,18 @@ def create_new_generation(gen, gen_scores, n):
     while True:
         tournament1 = random.sample(range(len(gen_combined)), tournament_size)
         tournament2 = random.sample(range(len(gen_combined)), tournament_size)
-
         b1 = gen[max(tournament1, key=lambda i: gen_scores[i])]
         b2 = gen[max(tournament2, key=lambda i: gen_scores[i])]
-        newb = blend_boards(b1, b2)
 
-        for _ in range(round(random.expovariate(velocity))):
-            newb = mutate_board(newb)
+        if random.random() < crossover_rate:
+            newb = blend_boards(b1, b2)
+        else:
+            newb = random.choice([b1, b2])
+
+        if random.random() < mutation_rate:
+            for _ in range(round(random.expovariate(velocity))):
+
+                newb = mutate_board(newb)
         if verify_board(newb):
             newgen.append(newb)
             count += 1
