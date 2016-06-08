@@ -1,5 +1,6 @@
 import chess
 import random
+import time
 import itertools
 import numpy as np
 import matplotlib.mlab as mlab
@@ -55,15 +56,17 @@ def generate_starting_board():
 
 def count_mates_in_1(brd):
     count = 0
-    for move in brd.legal_moves:
+    moves = brd.legal_moves
+    for move in moves:
         brd.push(move)
         if brd.is_checkmate():
             count += 1
         brd.pop()
-    return count
+    return count, len(moves)
 
 def fitness(brd):
-    return count_mates_in_1(brd) + 1 - len(get_occupied(brd))/64
+    mates, moves = count_mates_in_1(brd)
+    return mates + 1 - len(get_occupied(brd))/64, moves
 
 def blend_boards(brd1, brd2):
     res = chess.Board(None)
@@ -147,22 +150,33 @@ def create_initial_generation(n):
     return gen
 
 def score_generation(gen):
-    gen_scores = []
-    for board in gen:
-        gen_scores.append(fitness(board))
-        progress = str(len(gen_scores)).rjust(9, ' ')
-        print("{}/{} Scoring generation  ".format(progress, len(gen)), end="\r")
+    gen_scores = [0] * len(gen)
+    total_positions = 0
+    velocity = 0
+    start_time = time.time()
+    for i, board in enumerate(gen):
+        fit, moves = fitness(board)
+        gen_scores[i] = fit
+        total_positions += moves
+        if total_positions%20 == 0:
+            velocity = round(total_positions/(time.time() - start_time))
+            velocity /= 1000
+            progress = str(i).rjust(9, ' ')
+            print("{}/{} Scoring generation {:.3f}kN/s".format(progress, len(gen), velocity), end="\r")
     print(" "*80, end="\r")
     return gen_scores
 
-def create_new_generation(gen, gen_scores, n, velocity):
+def create_new_generation(gen, gen_scores, n):
     tournament_size = 2
+    velocity = 1
+
     newgen = []
     count = 0
     gen_combined = list(zip(gen, gen_scores))
     while True:
         tournament1 = random.sample(range(len(gen_combined)), tournament_size)
         tournament2 = random.sample(range(len(gen_combined)), tournament_size)
+
         b1 = gen[max(tournament1, key=lambda i: gen_scores[i])]
         b2 = gen[max(tournament2, key=lambda i: gen_scores[i])]
         newb = blend_boards(b1, b2)
@@ -181,8 +195,7 @@ def create_new_generation(gen, gen_scores, n, velocity):
 def main():
     plt.ion()
     plt.show()
-    gen_size = 100000
-    velocity = 1
+    gen_size = 1000
     gens_to_keep = 5
 
     gen = create_initial_generation(gen_size)
@@ -204,7 +217,7 @@ def main():
         best = max(gen_scores)
         print(gen[gen_scores.index(best)])
         print("Gen {}: {} Mates/{} Mean".format(gen_number, best, sum(gen_scores)/gen_size))
-        gen = create_new_generation(gen, gen_scores, gen_size, velocity)
+        gen = create_new_generation(gen, gen_scores, gen_size)
         gen_number += 1
 
 if __name__ == "__main__":
