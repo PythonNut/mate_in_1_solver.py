@@ -1,6 +1,9 @@
 import chess
 import random
 import itertools
+import numpy as np
+import matplotlib.mlab as mlab
+import matplotlib.pyplot as plt
 
 def verify_board(brd):
     if len(brd.pieces(chess.KING, chess.BLACK)) != 1:
@@ -148,13 +151,12 @@ def score_generation(gen):
     for board in gen:
         gen_scores.append(fitness(board))
         progress = str(len(gen_scores)).rjust(9, ' ')
-        print("{}/{} Scoring generation".format(progress, len(gen)), end="\r")
-    # gen_sorted = list(zip(gen, gen_scores))
-    # gen_sorted.sort(key=lambda x: -x[1])
+        print("{}/{} Scoring generation  ".format(progress, len(gen)), end="\r")
+    print(" "*80, end="\r")
     return gen_scores
 
 def create_new_generation(gen, gen_scores, n, velocity):
-    tournament_size = 4
+    tournament_size = 2
     newgen = []
     count = 0
     gen_combined = list(zip(gen, gen_scores))
@@ -177,13 +179,28 @@ def create_new_generation(gen, gen_scores, n, velocity):
     return newgen
 
 def main():
-    gen_size = 1000
+    plt.ion()
+    plt.show()
+    gen_size = 100000
     velocity = 1
     gens_to_keep = 5
+
     gen = create_initial_generation(gen_size)
     gen_number = 1
+    prev_gens = []
     while True:
         gen_scores = score_generation(gen)
+        prev_gens.append(gen_scores)
+        if len(prev_gens) > gens_to_keep:
+            prev_gens = prev_gens[-gens_to_keep:]
+        plt.cla()
+        hists = []
+        for i, g in enumerate(prev_gens):
+            hists.append(plt.hist(g, 50, alpha=0.8, label="Gen {}".format(gen_number-len(prev_gens)+i+1)))
+        plt.legend()
+        plt.draw()
+        plt.pause(0.001)
+
         best = max(gen_scores)
         print(gen[gen_scores.index(best)])
         print("Gen {}: {} Mates/{} Mean".format(gen_number, best, sum(gen_scores)/gen_size))
