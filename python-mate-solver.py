@@ -2,9 +2,12 @@ import chess
 import random
 import time
 import itertools
-import numpy as np
-import matplotlib.mlab as mlab
-import matplotlib.pyplot as plt
+try:
+    import numpy as np
+    import matplotlib.pyplot as plt
+    PLOTTING = True
+except:
+    PLOTTING = False
 
 def verify_board(brd):
     if len(brd.pieces(chess.KING, chess.BLACK)) != 1:
@@ -193,8 +196,9 @@ def create_new_generation(gen, gen_scores, n):
     return newgen
 
 def main():
-    plt.ion()
-    plt.show()
+    if PLOTTING:
+        plt.ion()
+        plt.show()
     gen_size = 1000
     gens_to_keep = 5
 
@@ -203,16 +207,17 @@ def main():
     prev_gens = []
     while True:
         gen_scores = score_generation(gen)
-        prev_gens.append(gen_scores)
-        if len(prev_gens) > gens_to_keep:
-            prev_gens = prev_gens[-gens_to_keep:]
-        plt.cla()
-        hists = []
-        for i, g in enumerate(prev_gens):
-            hists.append(plt.hist(g, 50, alpha=0.8, label="Gen {}".format(gen_number-len(prev_gens)+i+1)))
-        plt.legend()
-        plt.draw()
-        plt.pause(0.001)
+        if PLOTTING:
+            prev_gens.append(gen_scores)
+            if len(prev_gens) > gens_to_keep:
+                prev_gens = prev_gens[-gens_to_keep:]
+            plt.cla()
+            hists = []
+            for i, g in enumerate(prev_gens):
+                hists.append(plt.hist(g, 50, alpha=0.8, label="Gen {}".format(gen_number-len(prev_gens)+i+1)))
+            plt.legend()
+            plt.draw()
+            plt.pause(0.001)
 
         best = max(gen_scores)
         print(gen[gen_scores.index(best)])
