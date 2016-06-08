@@ -116,7 +116,14 @@ def mutate_board(brd):
     res = brd.copy()
     mutate_type = random.randint(1, 4)
     if mutate_type == 1:
-        return res
+        # Substitute a piece
+        try:
+            square = random.choice(list(get_occupied(brd)))
+        except IndexError:
+            return res
+        piece = get_random_piece()
+        res.set_piece_at(square, piece)
+
     elif mutate_type == 2:
         # Remove a piece
         try:
@@ -124,12 +131,14 @@ def mutate_board(brd):
         except IndexError:
             return res
         res.remove_piece_at(square)
+
     elif mutate_type == 3:
         # Add a piece
         square = get_random_square()
         piece = get_random_piece()
         if not brd.piece_at(square):
             res.set_piece_at(square, piece)
+
     else:
         fr = random.choice(list(get_occupied(brd, "kKPNBRQ")))
         to = random.choice(list(~get_occupied(brd, "kKPNBRQ")))
