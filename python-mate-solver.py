@@ -59,6 +59,9 @@ def count_mates_in_1(brd):
         brd.pop()
     return count
 
+def fitness(brd):
+    return count_mates_in_1(brd) + 1 - len(get_occupied(brd))/64
+
 def blend_boards(brd1, brd2):
     res = chess.Board(None)
     for r, f in itertools.product(*[range(8)]*2):
@@ -140,25 +143,28 @@ def create_initial_generation(n):
                 break
     return gen
 
-def sort_generation_by_fitness(gen):
-    gen_scored = []
+def score_generation(gen):
+    gen_scores = []
     for board in gen:
-        gen_scored.append((board, count_mates_in_1(board)))
-        progress = str(len(gen_scored)).rjust(9, ' ')
-        print("{}/{} Scoring generation".format(progress, len(gen)),end="\r")
-    # gen_scored = [(board, count_mates_in_1(board)) for board in gen]
-    gen_sorted = reversed(sorted(gen_scored, key=lambda x:x[1]))
-    print()
-    return [board for (board, score) in gen_sorted]
+        gen_scores.append(fitness(board))
+        progress = str(len(gen_scores)).rjust(9, ' ')
+        print("{}/{} Scoring generation".format(progress, len(gen)), end="\r")
+    # gen_sorted = list(zip(gen, gen_scores))
+    # gen_sorted.sort(key=lambda x: -x[1])
+    return gen_scores
 
-def create_new_generation(gen_sorted, n, velocity, ratio):
+def create_new_generation(gen, gen_scores, n, velocity):
+    tournament_size = 4
     newgen = []
-    top = list(gen_sorted)[:round(n * ratio)]
     count = 0
+    gen_combined = list(zip(gen, gen_scores))
     while True:
-        b1 = random.choice(top)
-        b2 = random.choice(top)
+        tournament1 = random.sample(range(len(gen_combined)), tournament_size)
+        tournament2 = random.sample(range(len(gen_combined)), tournament_size)
+        b1 = gen[max(tournament1, key=lambda i: gen_scores[i])]
+        b2 = gen[max(tournament2, key=lambda i: gen_scores[i])]
         newb = blend_boards(b1, b2)
+
         for _ in range(round(random.expovariate(velocity))):
             newb = mutate_board(newb)
         if verify_board(newb):
@@ -168,20 +174,21 @@ def create_new_generation(gen_sorted, n, velocity, ratio):
             print("{}/{} Creating generation".format(progress, n), end="\r")
             if count == n:
                 break
-    print()
     return newgen
 
 def main():
-    n = 10000
-    ratio = 0.5
-    velocity = 3
-    gen = create_initial_generation(n)
+    gen_size = 1000
+    velocity = 1
+    gens_to_keep = 5
+    gen = create_initial_generation(gen_size)
+    gen_number = 1
     while True:
-        gen_sorted = sort_generation_by_fitness(gen)
-        best = gen_sorted[0]
-        print(best)
-        print("{} Mates".format(count_mates_in_1(best)))
-        gen = create_new_generation(gen_sorted, n, velocity, ratio)
+        gen_scores = score_generation(gen)
+        best = max(gen_scores)
+        print(gen[gen_scores.index(best)])
+        print("Gen {}: {} Mates/{} Mean".format(gen_number, best, sum(gen_scores)/gen_size))
+        gen = create_new_generation(gen, gen_scores, gen_size, velocity)
+        gen_number += 1
 
 if __name__ == "__main__":
     main()
