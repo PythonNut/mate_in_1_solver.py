@@ -164,8 +164,8 @@ def create_initial_generation(n):
 
     return gen
 
-    gen_scores = [0] * len(gen)
 def score_generation(gen, thread_pool):
+    gen_scores = np.zeros(len(gen))
     total_positions = 0
     velocity = 0
 
@@ -182,19 +182,17 @@ def score_generation(gen, thread_pool):
     return gen_scores
 
 def create_new_generation(gen, gen_scores, n):
-    tournament_size = 2
     crossover_rate = 0.75
-    mutation_rate = 0.05
+    mutation_rate = 0.5
     velocity = 1
 
     newgen = []
     count = 0
-    gen_combined = list(zip(gen, gen_scores))
+    weights = gen_scores/np.sum(gen_scores)
+
     while True:
-        tournament1 = random.sample(range(len(gen_combined)), tournament_size)
-        tournament2 = random.sample(range(len(gen_combined)), tournament_size)
-        b1 = gen[max(tournament1, key=lambda i: gen_scores[i])]
-        b2 = gen[max(tournament2, key=lambda i: gen_scores[i])]
+        b1 = np.random.choice(gen, p=weights)
+        b2 = np.random.choice(gen, p=weights)
 
         if random.random() < crossover_rate:
             newb = blend_boards(b1, b2)
@@ -241,7 +239,7 @@ def main():
             plt.pause(0.001)
 
         best = max(gen_scores)
-        print(gen[gen_scores.index(best)])
+        print(gen[np.nonzero(gen_scores == best)[0][0]])
         print("Gen {}: {} Mates/{} Mean".format(gen_number, best, sum(gen_scores)/gen_size))
         gen = create_new_generation(gen, gen_scores, gen_size)
         gen_number += 1
