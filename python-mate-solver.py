@@ -2,6 +2,7 @@ import chess
 import random
 import time
 import itertools
+import multiprocessing as mp
 try:
     import numpy as np
     import matplotlib.pyplot as plt
@@ -161,13 +162,13 @@ def create_initial_generation(n):
                 break
     return gen
 
-def score_generation(gen):
     gen_scores = [0] * len(gen)
+def score_generation(gen, thread_pool):
     total_positions = 0
     velocity = 0
+
     start_time = time.time()
-    for i, board in enumerate(gen):
-        fit, moves = fitness(board)
+    for i, (fit, moves) in enumerate(thread_pool.imap(fitness, gen, 50)):
         gen_scores[i] = fit
         total_positions += moves
         if total_positions%20 == 0:
@@ -217,12 +218,13 @@ def main():
         plt.show()
     gen_size = 1000
     gens_to_keep = 5
+    p = mp.Pool()
 
     gen = create_initial_generation(gen_size)
     gen_number = 1
     prev_gens = []
     while True:
-        gen_scores = score_generation(gen)
+        gen_scores = score_generation(gen, p)
         if PLOTTING:
             prev_gens.append(gen_scores)
             if len(prev_gens) > gens_to_keep:
