@@ -44,19 +44,22 @@ def get_occupied(brd, pieces = "PNBRQ"):
     return res
 
 def generate_starting_board():
-    brd = chess.Board(None)
-    wking = get_random_square()
-    bking = get_random_square()
-    brd.set_piece_at(wking, chess.Piece.from_symbol("K"))
-    brd.set_piece_at(bking, chess.Piece.from_symbol("k"))
+    while True:
+        brd = chess.Board(None)
+        wking = get_random_square()
+        bking = get_random_square()
+        brd.set_piece_at(wking, chess.Piece.from_symbol("K"))
+        brd.set_piece_at(bking, chess.Piece.from_symbol("k"))
 
-    for _ in range(random.randint(1, 32)):
-        square = get_random_square()
-        piece = get_random_piece()
-        if not brd.piece_at(square):
-          brd.set_piece_at(square, piece)
+        for _ in range(random.randint(1, 32)):
+            square = get_random_square()
+            piece = get_random_piece()
+            if not brd.piece_at(square):
+              brd.set_piece_at(square, piece)
 
-    return brd
+        if verify_board(brd):
+            return brd
+
 
 def count_mates_in_1(brd):
     count = 0
@@ -151,15 +154,14 @@ def mutate_board(brd):
 def create_initial_generation(n):
     gen = []
     count = 0
-    while True:
+
+    for i in range(n):
         board = generate_starting_board()
-        if verify_board(board):
-            gen.append(board)
-            count += 1
-            progress = str(count).rjust(9, " ")
-            print("{}/{} Creating generation".format(progress, n), end="\r")
-            if count == n:
-                break
+        gen.append(board)
+        count += 1
+        progress = str(count).rjust(9, " ")
+        print("{}/{} Creating generation".format(progress, n), end="\r")
+
     return gen
 
     gen_scores = [0] * len(gen)
