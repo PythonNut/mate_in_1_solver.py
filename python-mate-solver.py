@@ -232,8 +232,9 @@ def main():
             plt.cla()
             hists = []
             for i, g in enumerate(prev_gens):
-                hists.append(plt.hist(g, 50, alpha=0.8, label="Gen {}".format(gen_number-len(prev_gens)+i+1)))
-            plt.legend()
+                X = np.sort(g)
+                Y = np.linspace(0, 1, len(g), endpoint=False)
+                hists.append(plt.plot(X, Y, alpha=0.8, label="Gen {}".format(gen_number-len(prev_gens)+i+1)))
             plt.draw()
             plt.pause(0.001)
 
