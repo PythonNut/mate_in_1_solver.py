@@ -24,7 +24,7 @@ def verify_board(brd):
     return True
 
 def get_random_square():
-   return chess.square(random.randint(0, 7), random.randint(1, 7))
+   return chess.square(random.randint(0, 7), random.randint(0, 7))
 
 def get_random_piece(pieces = "PNBRQ"):
     return chess.Piece.from_symbol(random.choice(pieces))
