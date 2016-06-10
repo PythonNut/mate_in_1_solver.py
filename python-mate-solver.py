@@ -21,6 +21,22 @@ def verify_board(brd):
         return False
     if brd.is_check():
         return False
+
+    promotions = 0
+    p = len(brd.pieces(chess.PAWN, chess.WHITE))
+    n = len(brd.pieces(chess.KNIGHT, chess.WHITE))
+    b = len(brd.pieces(chess.BISHOP, chess.WHITE))
+    r = len(brd.pieces(chess.ROOK, chess.WHITE))
+    q = len(brd.pieces(chess.QUEEN, chess.WHITE))
+
+    promotions += max(n - 2, 0)
+    promotions += max(b - 2, 0)
+    promotions += max(r - 2, 0)
+    promotions += max(q - 1, 0)
+
+    if p + promotions > 8:
+        return False
+
     return True
 
 def get_random_square():
