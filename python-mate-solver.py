@@ -88,8 +88,7 @@ def count_mates_in_1(brd):
     return count, len(moves)
 
 def fitness(brd):
-    mates, moves = count_mates_in_1(brd)
-    return mates + 1 - len(get_occupied(brd))/64, moves
+    return count_mates_in_1(brd)
 
 def blend_boards(brd1, brd2):
     res = chess.Board(None)
