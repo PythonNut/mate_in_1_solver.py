@@ -67,7 +67,7 @@ def generate_starting_board():
         brd.set_piece_at(wking, chess.Piece.from_symbol("K"))
         brd.set_piece_at(bking, chess.Piece.from_symbol("k"))
 
-        for _ in range(random.randint(1, 32)):
+        for _ in range(random.randint(1, 16)):
             square = get_random_square()
             piece = get_random_piece()
             if not brd.piece_at(square):
