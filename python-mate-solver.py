@@ -185,7 +185,8 @@ def score_generation(gen, thread_pool):
     velocity = 0
 
     start_time = time.time()
-    for i, (fit, moves) in enumerate(thread_pool.imap(fitness, gen, 50)):
+    fitnesses = thread_pool.imap(fitness, gen, 50)
+    for i, (fit, moves) in enumerate(fitnesses):
         gen_scores[i] = fit
         total_positions += moves
         if total_positions%20 == 0:
