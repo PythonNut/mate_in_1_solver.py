@@ -201,8 +201,9 @@ def create_new_generation(gen, gen_scores, n):
 
         if random.random() < mutation_rate:
             for _ in range(round(random.expovariate(velocity))):
+                bcross = generate_starting_board()
+                newb = blend_boards(newb, bcross)
 
-                newb = mutate_board(newb)
         if verify_board(newb):
             newgen.append(newb)
             count += 1
