@@ -223,7 +223,6 @@ def select_from_current_generation(gen, gen_scores, n):
 def create_new_generation(parents, n):
     crossover_rate = 0.85
     mutation_rate = 0.05
-    velocity = 1
 
     newgen = [None] * n
     total_tries = 0
@@ -237,8 +236,7 @@ def create_new_generation(parents, n):
             newb = random.choice([b1, b2])
 
         if random.random() < mutation_rate:
-            for _ in range(math.ceil(random.expovariate(velocity))):
-                newb = mutate_board(newb)
+            newb = mutate_board(newb)
 
         total_tries += 1
         if verify_board(newb):
