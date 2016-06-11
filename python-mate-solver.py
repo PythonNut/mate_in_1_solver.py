@@ -269,12 +269,23 @@ def main():
             prev_gens.append(gen_scores)
             if len(prev_gens) > gens_to_keep:
                 prev_gens = prev_gens[-gens_to_keep:]
-            plt.cla()
             hists = []
-            for i, g in enumerate(prev_gens):
+            plt.figure(1)
+            plt.clf()
+            plot_curves_count = 10
+            for i, g in enumerate(prev_gens[-plot_curves_count:]):
+                opacity = 0.2
+                if i == plot_curves_count - 1:
+                    opacity = 1
                 X = np.sort(g)
                 Y = np.linspace(0, 1, len(g), endpoint=False)
-                hists.append(plt.plot(X, Y, alpha=0.8, label="Gen {}".format(gen_number-len(prev_gens)+i+1)))
+                hists.append(plt.plot(X, Y, alpha=opacity, label="Gen {}".format(gen_number-len(prev_gens)+i+1)))
+            plt.figure(2)
+            plt.clf()
+            for pct in [0, 25, 75, 100]:
+                pct_fun = lambda arr: np.percentile(arr, pct)
+                plt.plot(range(len(prev_gens)), list(map(pct_fun, prev_gens)))
+            plt.plot(range(len(prev_gens)), list(map(np.mean, prev_gens)))
             plt.draw()
             plt.pause(0.001)
 
