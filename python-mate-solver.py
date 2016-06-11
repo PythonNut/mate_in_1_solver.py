@@ -64,7 +64,7 @@ def generate_starting_board(_=None):
     while True:
         brd = chess.Board(None)
         wking = get_random_square()
-        bking = get_random_square()
+        bking = chess.square(4, 4)
         brd.set_piece_at(wking, chess.Piece.from_symbol("K"))
         brd.set_piece_at(bking, chess.Piece.from_symbol("k"))
 
