@@ -91,11 +91,11 @@ def count_mates_in_1(brd):
 def fitness(brd):
     return count_mates_in_1(brd)
 
-def blend_boards(brd1, brd2):
+def blend_boards(brd1, brd2, p=0.5):
     res = chess.Board(None)
     for r, f in itertools.product(*[range(8)]*2):
         square = chess.square(r, f)
-        if random.getrandbits(1):
+        if random.random() > p:
           res.set_piece_at(square, brd1.piece_at(square))
         else:
           res.set_piece_at(square, brd2.piece_at(square))
@@ -103,7 +103,7 @@ def blend_boards(brd1, brd2):
     wkings = res.pieces(chess.KING, chess.WHITE)
     bkings = res.pieces(chess.KING, chess.BLACK)
     if len(wkings) == 0:
-        if random.getrandbits(1):
+        if random.random() > p:
             wking = brd1.pieces(chess.KING, chess.WHITE)
         else:
             wking = brd2.pieces(chess.KING, chess.WHITE)
@@ -117,7 +117,7 @@ def blend_boards(brd1, brd2):
                 res.remove_piece_at(square)
 
     if len(bkings) == 0:
-        if random.getrandbits(1):
+        if random.random() > p:
             bking = brd1.pieces(chess.KING, chess.BLACK)
         else:
             bking = brd2.pieces(chess.KING, chess.BLACK)
