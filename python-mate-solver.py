@@ -160,11 +160,13 @@ def mutate_board(brd):
             res.set_piece_at(square, piece)
 
     else:
-        fr = random.choice(list(get_occupied(brd, "kKPNBRQ")))
+        # move a piece
+        fr = random.choice(list(get_occupied(brd, "KPNBRQ")))
         to = random.choice(list(~get_occupied(brd, "kKPNBRQ")))
         piece = res.piece_at(fr)
         res.remove_piece_at(fr)
         res.set_piece_at(to, piece)
+
     return res
 
 def create_initial_generation(n, thread_pool):
