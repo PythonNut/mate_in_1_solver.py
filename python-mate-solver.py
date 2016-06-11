@@ -186,12 +186,13 @@ def score_generation(gen, thread_pool):
 
     start_time = time.time()
     fitnesses = thread_pool.imap(fitness, gen, 50)
+    last_status = 0
     for i, (fit, moves) in enumerate(fitnesses):
         gen_scores[i] = fit
         total_positions += moves
-        if total_positions%20 == 0:
-            velocity = round(total_positions/(time.time() - start_time))
-            velocity /= 1000
+        if total_positions - last_status > 1000:
+            last_status = total_positions
+            velocity = round(total_positions/(time.time() - start_time))/1000
             progress = str(i).rjust(9, ' ')
             print("{}/{} Scoring generation {:.3f}kN/s".format(progress, len(gen), velocity), end="\r")
     print(" "*80, end="\r")
