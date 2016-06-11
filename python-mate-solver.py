@@ -1,4 +1,5 @@
 import chess
+import math
 import random
 import time
 import itertools
@@ -193,42 +194,62 @@ def score_generation(gen, thread_pool):
         total_positions += moves
         if total_positions - last_status > 1000:
             last_status = total_positions
-            velocity = round(total_positions/(time.time() - start_time))/1000
+            velocity = round(total_positions/(time.time() - start_time))
             progress = str(i).rjust(9, ' ')
-            print("{}/{} Scoring generation {:.3f}kN/s".format(progress, len(gen), velocity), end="\r")
+            print("{}/{} Scoring generation {}N/s".format(progress, len(gen), velocity), end="\r")
     print(" "*80, end="\r")
     return gen_scores
 
-def create_new_generation(gen, gen_scores, n):
-    crossover_rate = 0.75
-    mutation_rate = 0.5
+def select_from_current_generation(gen, gen_scores, n):
+    select_rate = 0.85
+
+    k = round(n * select_rate)
+    total_fitness = np.sum(gen_scores)
+    p = total_fitness/k
+    start = np.random.random() * p
+    keep = []
+    i = 0
+    cum_fit = 0
+    fits = np.arange(start, total_fitness, p)
+    for floor_cum_fit in fits:
+        while cum_fit + gen_scores[i] < floor_cum_fit:
+            cum_fit += gen_scores[i]
+            i += 1
+        keep.append(gen[i])
+
+    assert len(keep) == k
+    return keep
+
+def create_new_generation(parents, n):
+    crossover_rate = 0.85
+    mutation_rate = 0.05
     velocity = 1
 
-    newgen = []
+    newgen = [None] * n
+    total_tries = 0
+
     count = 0
-    weights = gen_scores/np.sum(gen_scores)
-
     while True:
-        b1 = np.random.choice(gen, p=weights)
-        b2 = np.random.choice(gen, p=weights)
-
+        b1, b2 = random.sample(parents, 2)
         if random.random() < crossover_rate:
             newb = blend_boards(b1, b2)
         else:
             newb = random.choice([b1, b2])
 
         if random.random() < mutation_rate:
-            for _ in range(round(random.expovariate(velocity))):
-                bcross = generate_starting_board()
-                newb = blend_boards(newb, bcross)
+            for _ in range(math.ceil(random.expovariate(velocity))):
+                newb = mutate_board(newb)
 
+        total_tries += 1
         if verify_board(newb):
-            newgen.append(newb)
+            newgen[count] = newb
             count += 1
             progress = str(count).rjust(9, " ")
             print("{}/{} Creating generation".format(progress, n), end="\r")
-            if count == n:
-                break
+
+        if count == n:
+            break
+
     return newgen
 
 def main():
@@ -260,7 +281,8 @@ def main():
         best = max(gen_scores)
         print(gen[np.nonzero(gen_scores == best)[0][0]])
         print("Gen {}: {} Mates/{} Mean".format(gen_number, best, sum(gen_scores)/gen_size))
-        gen = create_new_generation(gen, gen_scores, gen_size)
+        parents = select_from_current_generation(gen, gen_scores, gen_size)
+        gen = create_new_generation(parents, gen_size)
         gen_number += 1
 
 if __name__ == "__main__":
