@@ -59,7 +59,7 @@ def get_occupied(brd, pieces = "PNBRQ"):
             pass
     return res
 
-def generate_starting_board():
+def generate_starting_board(_=None):
     while True:
         brd = chess.Board(None)
         wking = get_random_square()
@@ -166,16 +166,17 @@ def mutate_board(brd):
         res.set_piece_at(to, piece)
     return res
 
-def create_initial_generation(n):
-    gen = []
-    count = 0
+def create_initial_generation(n, thread_pool):
+    gen = [None] * n
 
-    for i in range(n):
-        board = generate_starting_board()
-        gen.append(board)
-        count += 1
-        progress = str(count).rjust(9, " ")
-        print("{}/{} Creating generation".format(progress, n), end="\r")
+    new_boards = thread_pool.imap(generate_starting_board, range(n), 10)
+    start_time = time.perf_counter()
+    for i, brd in enumerate(new_boards):
+        gen[i] = brd
+        if i%10 == 0:
+            progress = str(i).rjust(9, " ")
+            velocity = round(i/(time.perf_counter() - start_time))
+            print("{}/{} Creating generation {}B/s".format(progress, n, velocity), end="\r")
 
     return gen
 
@@ -185,7 +186,7 @@ def score_generation(gen, thread_pool):
     velocity = 0
 
     start_time = time.time()
-    fitnesses = thread_pool.imap(fitness, gen, 50)
+    fitnesses = thread_pool.imap(fitness, gen, 10)
     last_status = 0
     for i, (fit, moves) in enumerate(fitnesses):
         gen_scores[i] = fit
@@ -238,7 +239,7 @@ def main():
     gens_to_keep = 5
     p = mp.Pool()
 
-    gen = create_initial_generation(gen_size)
+    gen = create_initial_generation(gen_size, p)
     gen_number = 1
     prev_gens = []
     while True:
