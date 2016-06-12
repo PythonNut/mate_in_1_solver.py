@@ -43,7 +43,7 @@ def verify_board(brd):
 def get_random_square():
    return chess.square(random.randint(0, 7), random.randint(0, 7))
 
-def get_random_piece(pieces = "PNBRQ"):
+def get_random_piece(pieces = "NBRQ"):
     return chess.Piece.from_symbol(random.choice(pieces))
 
 def get_occupied(brd, pieces = "PNBRQ"):
