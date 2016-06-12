@@ -46,6 +46,34 @@ def get_random_square():
 def get_random_piece(pieces = "NBRQ"):
     return chess.Piece.from_symbol(random.choice(pieces))
 
+def get_random_legal_piece(brd):
+    promotions = 0
+    pieces=set()
+    n = len(brd.pieces(chess.KNIGHT, chess.WHITE))
+    b = len(brd.pieces(chess.BISHOP, chess.WHITE))
+    r = len(brd.pieces(chess.ROOK, chess.WHITE))
+    q = len(brd.pieces(chess.QUEEN, chess.WHITE))
+
+    promotions += max(n - 2, 0)
+    promotions += max(b - 2, 0)
+    promotions += max(r - 2, 0)
+    promotions += max(q - 1, 0)
+
+    if promotions < 8:
+        pieces=set("NBRQ")
+    else:
+        if n < 2:
+            pieces.add("N")
+        if b < 2:
+            pieces.add("B")
+        if r < 2:
+            pieces.add("R")
+        if q < 1:
+            pieces.add("Q")
+
+    if pieces:
+        return get_random_piece(list(pieces))
+
 def get_occupied(brd, pieces = "PNBRQ"):
     pieces_and_colors = []
     for piece in pieces:
@@ -154,9 +182,9 @@ def mutate_board(brd):
 
     elif mutate_type == 3:
         # Add a piece
-        square = get_random_square()
-        piece = get_random_piece()
-        if not brd.piece_at(square):
+        square = random.choice(list(~get_occupied(brd)))
+        piece = get_random_legal_piece(brd)
+        if piece:
             res.set_piece_at(square, piece)
 
     else:
