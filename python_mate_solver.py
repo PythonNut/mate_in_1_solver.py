@@ -281,12 +281,12 @@ def create_new_generation(parents, n):
 
     return newgen
 
-def main():
+def main_ga():
     if PLOTTING:
         plt.ion()
         plt.show()
-    gen_size = 1000
-    gens_to_keep = 5
+    gen_size = 10
+    gens_to_keep = 1000
     p = mp.Pool()
 
     gen = create_initial_generation(gen_size, p)
