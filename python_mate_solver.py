@@ -340,14 +340,14 @@ def join_boards(b1, b2):
 
 def main_sa():
     temp = decimal.Decimal(20)
-    cooling_rate = decimal.Decimal(1) - decimal.Decimal('0.000001');
+    cooling_rate = decimal.Decimal(1) - decimal.Decimal('0.0000001')
     cur = generate_starting_board()
     cur_fit = fitness(cur)[0]
     best = cur
     best_fit = cur_fit
     count = 0
     moves = 0
-    end = decimal.Decimal('0.1')
+    end = decimal.Decimal('0.2')
     while temp > end:
         while True:
             new = mutate_board(cur)
@@ -367,7 +367,7 @@ def main_sa():
         if count % 20 == 0:
             print()
             print(join_boards(cur, best))
-        print("{}/{:0>3}/{:0.6f}: {:0>3} {:0.3f}".format(
+        print("{}/{:0>3}/{:0.8f}: {:0>3} {:0.3f}".format(
             str(count).rjust(8, ' '),
             best_fit,
             temp,
