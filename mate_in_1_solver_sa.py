@@ -28,27 +28,27 @@ def main_sa():
             new = mutate_board(cur)
             if verify_board(new):
                 break
-            ft = fitness(new)
-            new_fit = ft[0]
-            moves += ft[1]
-            ap = acc_prob(cur_fit, new_fit, temp)
+        ft = fitness(new)
+        new_fit = ft[0]
+        moves += ft[1]
+        ap = acc_prob(cur_fit, new_fit, temp)
         if ap > random.random():
             cur = new
             cur_fit = new_fit
         if new_fit > best_fit:
             best = new
             best_fit = new_fit
-            count += 1
-        if count % 20 == 0:
+        count += 1
+        if count % 50 == 0:
             print()
             print(join_boards(cur, best))
-            print("{}/{:0>3}/{:0.8f}: {:0>3} {:0.3f}".format(
-                str(count).rjust(8, ' '),
-                best_fit,
-                temp,
-                cur_fit,
-                ap), end='\r')
-            temp *= cooling_rate
+        print("{}/{:0>3}/{:0.8f}: {:0>3} {:0.3f}".format(
+            str(count).rjust(8, ' '),
+            best_fit,
+            temp,
+            cur_fit,
+            ap), end='\r')
+        temp *= cooling_rate
 
     print("Best:")
     print(best)

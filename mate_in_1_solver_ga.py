@@ -30,7 +30,7 @@ def score_generation(gen, thread_pool):
             velocity = round(total_positions/(time.time() - start_time))
             progress = str(i).rjust(9, ' ')
             print("{}/{} Scoring generation {}N/s".format(progress, len(gen), velocity), end="\r")
-            print(" "*80, end="\r")
+    print(" "*80, end="\r")
     return gen_scores
 
 def select_from_current_generation(gen, gen_scores, n):
@@ -48,7 +48,7 @@ def select_from_current_generation(gen, gen_scores, n):
         while cum_fit + gen_scores[i] < floor_cum_fit:
             cum_fit += gen_scores[i]
             i += 1
-            keep.append(gen[i])
+        keep.append(gen[i])
 
     assert len(keep) == k
     return keep
@@ -87,9 +87,9 @@ def main_ga():
     if PLOTTING:
         plt.ion()
         plt.show()
-        gen_size = 10
-        gens_to_keep = 1000
-        p = mp.Pool()
+    gen_size = 10000
+    gens_to_keep = 100
+    p = mp.Pool()
 
     gen = create_initial_generation(gen_size, p)
     gen_number = 1
@@ -100,25 +100,25 @@ def main_ga():
             prev_gens.append(gen_scores)
             if len(prev_gens) > gens_to_keep:
                 prev_gens = prev_gens[-gens_to_keep:]
-                hists = []
-                plt.figure(1)
-                plt.clf()
-                plot_curves_count = 10
+            hists = []
+            plt.figure(1)
+            plt.clf()
+            plot_curves_count = 10
             for i, g in enumerate(prev_gens[-plot_curves_count:]):
                 opacity = 0.2
                 if i == plot_curves_count - 1:
                     opacity = 1
-                    X = np.sort(g)
-                    Y = np.linspace(0, 1, len(g), endpoint=False)
-                    hists.append(plt.plot(X, Y, alpha=opacity, label="Gen {}".format(gen_number-len(prev_gens)+i+1)))
-                    plt.figure(2)
-                    plt.clf()
+                X = np.sort(g)
+                Y = np.linspace(0, 1, len(g), endpoint=False)
+                hists.append(plt.plot(X, Y, alpha=opacity, label="Gen {}".format(gen_number-len(prev_gens)+i+1)))
+            plt.figure(2)
+            plt.clf()
             for pct in [0, 25, 75, 100]:
                 pct_fun = lambda arr: np.percentile(arr, pct)
                 plt.plot(range(len(prev_gens)), list(map(pct_fun, prev_gens)))
-                plt.plot(range(len(prev_gens)), list(map(np.mean, prev_gens)))
-                plt.draw()
-                plt.pause(0.001)
+            plt.plot(range(len(prev_gens)), list(map(np.mean, prev_gens)))
+            plt.draw()
+            plt.pause(0.001)
 
         best = max(gen_scores)
         print(gen[np.nonzero(gen_scores == best)[0][0]])
